@@ -93,12 +93,17 @@ def statistic(result_list):
     return result
 
 
-def run_ping(hostnames, num_packets, raw_ping_output_filename, aggregated_ping_output_filename):
+def execute(hostnames, num_packets):
     raw_result = dict()
     if isinstance(hostnames, list):
         for host in hostnames:
             print('Testing host : ' + host)
             raw_result.update(ping_one(host, num_packets, multiprocessing.cpu_count()))
+    return raw_result
+
+
+def run_ping(hostnames, num_packets, raw_ping_output_filename, aggregated_ping_output_filename):
+    raw_result = execute(hostnames, num_packets)
     raw_output = json.JSONEncoder().encode(raw_result)
     statisticResult = statistic(raw_result)
     if isinstance(statisticResult, bool):
