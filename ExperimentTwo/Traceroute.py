@@ -33,7 +33,6 @@ class ResultHandle(object):
 			result.append(self.__formate(res))
 		return result
 
-
 	def __formate(self, once):
 		result = list()
 		patternresult = re.findall(self.formatpattern, once) 
@@ -56,6 +55,7 @@ class ResultHandle(object):
 			result.append((ip, float(part.rstrip())))
 		return result
 
+
 def to_json_result(output, sendtimes):
 	result = list()
 	output = ResultHandle().analyseresult(output)
@@ -77,9 +77,6 @@ def to_json_result(output, sendtimes):
 		result.append({"ip": iplist, "averagetime": averagetime})
 	return JSONEncoder().encode({"road": result})
 
-
-
-
 def run_traceroute(hostnames, num_packets, output_filename):
 	command = 'traceroute'
 	argv = ['-q{}'.format(num_packets),'-n',hostnames]
@@ -90,7 +87,6 @@ def run_traceroute(hostnames, num_packets, output_filename):
 	file.write(output)
 	file.close;
 	return output
-
 
 def parse_traceroute(num_packets, raw_traceroute_filename, output_filename):
 	file_output = open(raw_traceroute_filename, 'r')
@@ -128,5 +124,3 @@ if __name__ == '__main__':
 	output = run_traceroute(arg[1],packets_num , raw_path)
 	analyse_traceroute(output,packets_num, arg[4])
 	exit(0)
-
-
