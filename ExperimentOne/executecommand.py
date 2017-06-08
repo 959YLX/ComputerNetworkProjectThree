@@ -1,9 +1,11 @@
+#! /usr/local/bin/python3
 import subprocess
 import multiprocessing
 import math
 import json
 import sys
-
+import matplotlib.pyplot as plt
+import numpy as np
 
 def run(command, argv):
     p = subprocess.Popen(([command] + argv), stdout=subprocess.PIPE, stderr=open('/dev/null', 'w'))
@@ -109,6 +111,7 @@ def run_ping(hostnames, num_packets, raw_ping_output_filename, aggregated_ping_o
     if isinstance(statisticResult, bool):
         print("Network Error")
         return
+    draw(statisticResult)
     aggregated_output = json.JSONEncoder().encode(statisticResult)
     file = open(raw_ping_output_filename, 'w')
     file.write(raw_output)
@@ -117,6 +120,51 @@ def run_ping(hostnames, num_packets, raw_ping_output_filename, aggregated_ping_o
     file.write(aggregated_output)
     file.close()
 
+def draw(data):
+    host = list()
+    max_rtt = list()
+    median_rtt = list()
+    drop_rate = list()
+    for (hotsname, result) in data.items():
+        host.append(hotsname)
+        for (key, value) in result.items():
+            if key == 'max_rtt':
+                max_rtt.append(value)
+                continue
+            if key == 'median_rtt':
+                median_rtt.append(value)
+                continue
+            if key == 'drop_rate':
+                drop_rate.append(value)
+    host_count = len(host)
+    max_rtt = tuple(max_rtt)
+    median_rtt = tuple(median_rtt)
+    drop_rate = tuple(drop_rate)
+    width = 0.1
+    x1 = range(0,host_count)
+    x2 = [i + width for i in x1]
+    x3 = [i + width for i in x2]
+
+    fig, ax = plt.subplots(figsize=(15, 9))
+    max_rtt_bar = ax.bar(x1, max_rtt, width, color = 'r', label = 'max_rtt')
+    median_rtt_bar = ax.bar(x2, median_rtt, width, color = 'g', label = 'median_rtt')
+    
+
+    ax.set_ylabel('RTT')
+    ax.set_title('Ping Result')
+    ax.set_xticks(x2)
+    ax.set_xticklabels(tuple(host))
+    max_y = math.ceil(max(max_rtt)) + 5
+    print(max_y)
+    ax.set_ylim([0, max_y])
+    ax.set_xticklabels(tuple(host))
+    ax.legend(loc = 'upper left')
+    ax1 = ax.twinx()
+    drop_rate_bar = ax1.bar(x3, drop_rate, width, color = 'b', label = 'drop_rate')
+    ax1.set_ylabel('Drop Rate(%)')
+    ax1.set_ylim([0, 115])
+    ax1.legend(loc = 'upper right')
+    plt.show()
 
 if __name__ == '__main__':
     arg = sys.argv[1:]
